@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
+#include "input.h" 
 
 typedef struct node {
 	char 	letter;
@@ -10,18 +7,42 @@ typedef struct node {
 	struct node *leaves;
 } NODE;
 	
-NODE *root = NULL;
-NODE *build_dict(char *);
-NODE *find_letter(NODE *, char);
-NODE *insert_letter(NODE *, char);
-void print_dictionary(NODE *);
+static NODE *root = NULL;
+static NODE *build_dict(char *);
+static NODE *insert_letter(NODE *, char);
+static NODE *find_letter(NODE *, char);
+static void print_dictionary(NODE *);
+static void parse(char *);
+int 	is_word(char *);
+
+/* Function:	is_word()
+ *
+ * Description:	Determine if input string is a word
+		in the dictionary - aka is it spelled
+		correctly?
+ */
+
+int is_word(char *word) {
+	char 	*c = word;
+	NODE 	*curr = find_letter(root, *c),
+		*prev = curr;
+		
+	c++;
+	while(*c && (curr = find_letter(curr->leaves, *c))) {
+		prev = curr;
+		c++;
+	}
+	if(prev->end_of_word)
+		return 1;
+	return 0;
+}
 
 /* Function:	print_dictionary()
  *
  * Description:	Print all words in the dictionary
  */
 
-void print_dictionary(NODE *node) {
+static void print_dictionary(NODE *node) {
 	int 	i;
 
 	if(node) {
@@ -43,7 +64,7 @@ void print_dictionary(NODE *node) {
  *		word into the dictionary
  */
 
-NODE *build_dict(char *word) {
+static NODE *build_dict(char *word) {
 	char	*src = word;
 	NODE 	*temp;
 
@@ -69,7 +90,7 @@ NODE *build_dict(char *word) {
  *		not found, return NULL
  */ 
 
-NODE *find_letter(NODE *node, char letter) {
+static NODE *find_letter(NODE *node, char letter) {
 	while(node) {
 		if(node->letter == letter) 
 			return node;
@@ -84,7 +105,7 @@ NODE *find_letter(NODE *node, char letter) {
  * 		tree. Return the head of the list
  */
 
-NODE *insert_letter(NODE *node, char letter) {
+static NODE *insert_letter(NODE *node, char letter) {
 	NODE 	*new;
 	NODE	*cur;
 
@@ -116,7 +137,7 @@ NODE *insert_letter(NODE *node, char letter) {
  * 		all characters that are not a-z.
  */
 
-void parse(char *text) {
+static void parse(char *text) {
 	char	*src,
 		*dst;
 
@@ -136,15 +157,13 @@ int main(int argc, char **argv) {
 	size_t	len = 0;
 	
 	f = fopen(argv[1], "r");
-	printf("parsed words:\n");
 	while(fscanf(f, "%s", buf) == 1) {
 		parse(buf);
 		root = build_dict(buf);
-		printf("%s\n", buf);
 	}
-	printf("end parsing\n");
 	print_dictionary(root);
 	printf("\n");
 	fclose(f);
+
 	return 1;
 }
