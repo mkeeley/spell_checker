@@ -156,6 +156,11 @@ int main(int argc, char **argv) {
 	char	buf[128];
 	size_t	len = 0;
 	
+	if(argc != 3) {
+		printf("./prog <dictionary> <test file>\n");
+		exit(1);
+	}
+
 	f = fopen(argv[1], "r");
 	while(fscanf(f, "%s", buf) == 1) {
 		parse(buf);
@@ -165,5 +170,11 @@ int main(int argc, char **argv) {
 	printf("\n");
 	fclose(f);
 
+	f = fopen(argv[2], "r");
+	while(fscanf(f, "%s", buf) != -1) {
+		printf("%s is ", buf);
+		is_word(buf) ? printf("a word\n") : printf("not a word\n");
+	}
+	fclose(f);
 	return 1;
 }
