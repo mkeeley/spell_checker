@@ -11,7 +11,7 @@ static NODE *root = NULL;
 static NODE *build_dict(char *);
 static NODE *insert_letter(NODE *, char);
 static NODE *find_letter(NODE *, char);
-static void print_dictionary(NODE *);
+static void print_dictionary(NODE *, char *);
 static void parse(char *);
 int 	is_word(char *);
 
@@ -42,19 +42,18 @@ int is_word(char *word) {
  * Description:	Print all words in the dictionary
  */
 
-static void print_dictionary(NODE *node) {
+static void print_dictionary(NODE *node, char *word) {
 	int 	i;
+	int	len;
 
 	if(node) {
-		printf("%c", node->letter);
+		strcat(word, &node->letter);
+		len = strlen(word);
 		if(node->end_of_word)	
-			printf("*");
-		if(node->leaves)
-			print_dictionary(node->leaves);
-		if(node->next) {
-			printf("\n");
-			print_dictionary(node->next);
-		}
+			printf("%s\n", word);
+		print_dictionary(node->leaves, word);
+		word[len - 1] = '\0';
+		print_dictionary(node->next, word);
 	}
 }
 			
@@ -154,7 +153,6 @@ static void parse(char *text) {
 int main(int argc, char **argv) {
 	FILE	*f;
 	char	buf[128];
-	size_t	len = 0;
 	
 	if(argc != 3) {
 		printf("./prog <dictionary> <test file>\n");
@@ -166,10 +164,11 @@ int main(int argc, char **argv) {
 		parse(buf);
 		root = build_dict(buf);
 	}
-	print_dictionary(root);
+	buf[0] = '\0';
+	print_dictionary(root, buf);
 	printf("\n");
-	fclose(f);
 
+	fclose(f);
 	f = fopen(argv[2], "r");
 	while(fscanf(f, "%s", buf) != -1) {
 		printf("%s is ", buf);
