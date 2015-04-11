@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/time.h>
 
 int is_word(char *);
+void test_dictionary(FILE *, FILE *);
 
 #endif /* INPUT_H */

@@ -14,6 +14,7 @@ static NODE *find_letter(NODE *, char);
 static void print_dictionary(NODE *, char *);
 static void parse(char *);
 int 	is_word(char *);
+void	test_dictionary(FILE *, FILE *);
 
 /* Function:	is_word()
  *
@@ -43,14 +44,13 @@ int is_word(char *word) {
  */
 
 static void print_dictionary(NODE *node, char *word) {
-	int 	i;
 	int	len;
 
 	if(node) {
 		strcat(word, &node->letter);
 		len = strlen(word);
 		if(node->end_of_word)	
-			printf("%s\n", word);
+			printf("\t- %s\n", word);
 		print_dictionary(node->leaves, word);
 		word[len - 1] = '\0';
 		print_dictionary(node->next, word);
@@ -150,30 +150,28 @@ static void parse(char *text) {
 	*dst = '\0';
 }
 
-int main(int argc, char **argv) {
-	FILE	*f;
-	char	buf[128];
-	
-	if(argc != 3) {
-		printf("./prog <dictionary> <test file>\n");
-		exit(1);
-	}
+/* Function: test_case()
+ *
+ * Description:	Build a dictionary and test text against
+ * 		it. It is to be called by a test driver.
+ */
 
-	f = fopen(argv[1], "r");
-	while(fscanf(f, "%s", buf) == 1) {
+void test_dictionary(FILE *in, FILE *check) {
+	char	buf[64];
+
+	while(fscanf(in, "%s", buf) != EOF) {
 		parse(buf);
 		root = build_dict(buf);
 	}
+	
 	buf[0] = '\0';
+	printf("printing dictionary:\n");
 	print_dictionary(root, buf);
-	printf("\n");
 
-	fclose(f);
-	f = fopen(argv[2], "r");
-	while(fscanf(f, "%s", buf) != -1) {
-		printf("%s is ", buf);
+	printf("words from check file:\n");
+	while(fscanf(check, "%s", buf) != EOF) {
+		printf("\t- %s is ", buf);
 		is_word(buf) ? printf("a word\n") : printf("not a word\n");
 	}
-	fclose(f);
-	return 1;
 }
+
