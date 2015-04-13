@@ -9,7 +9,7 @@ typedef struct node {
 	
 static NODE *root = NULL;
 static NODE *build_dict(char *);
-static NODE *insert_letter(NODE *, char);
+static NODE *insert_letter(NODE **, char);
 static NODE *find_letter(NODE *, char);
 static void print_dictionary(NODE *, char *);
 static void parse(char *);
@@ -64,20 +64,15 @@ static void print_dictionary(NODE *node, char *word) {
  */
 
 static NODE *build_dict(char *word) {
-	char	*src = word;
+	char	*src = &word[1];
 	NODE 	*temp;
 
-	temp = insert_letter(root, *src);
+	temp = insert_letter(&root, *word);
 	if(!root)
 		root = temp;
-	temp = find_letter(root, *src);
-	src++;
 
-	while(*src) {
-		temp->leaves = insert_letter(temp->leaves, *src);
-		temp = find_letter(temp->leaves, *src);
-		src++;
-	}
+	while(*src) 
+		temp = insert_letter(&temp->leaves, *src++);
 	temp->end_of_word = 1;
 	return root;
 }
@@ -104,23 +99,20 @@ static NODE *find_letter(NODE *node, char letter) {
  * 		tree. Return the head of the list
  */
 
-// TODO: insert node as ** to set root/head node and to find node or insert node and return inserted
-//		node so we can update root as needed and also return the current spot we are on.
-//		This will allow us to remove calling the find function after every insert
-static NODE *insert_letter(NODE *node, char letter) {
-	NODE 	*new;
-	NODE	*cur;
+static NODE *insert_letter(NODE **node, char letter) {
+	NODE 	*new,
+		*cur;
 
-	if(!node) {
-		node = malloc(sizeof(*node));
-		node->next = NULL;
-		node->leaves = NULL;
-		node->end_of_word = 0;
-		node->letter = letter;
-		return node;
+	if(!*node) {
+		*node = malloc(sizeof(**node));
+		(*node)->next = NULL;
+		(*node)->leaves = NULL;
+		(*node)->end_of_word = 0;
+		(*node)->letter = letter;
+		return *node;
 	}
 
-	for(cur = node; cur->next != NULL && cur->letter != letter; cur = cur->next) ;
+	for(cur = *node; cur->next != NULL && cur->letter != letter; cur = cur->next) ;
 	if(cur->letter != letter) {
 		new = malloc(sizeof(*new));
 		new->next = cur->next;
@@ -128,8 +120,9 @@ static NODE *insert_letter(NODE *node, char letter) {
 		new->leaves = NULL;
 		new->end_of_word = 0;
 		new->letter = letter;
+		return new;
 	}
-	return node;
+	return cur;
 }
 
 /* Function: parse()
@@ -177,4 +170,3 @@ void test_dictionary(FILE *in, FILE *check) {
 		is_word(buf) ? printf("a word\n") : printf("not a word\n");
 	}
 }
-
