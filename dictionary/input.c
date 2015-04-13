@@ -104,6 +104,9 @@ static NODE *find_letter(NODE *node, char letter) {
  * 		tree. Return the head of the list
  */
 
+// TODO: insert node as ** to set root/head node and to find node or insert node and return inserted
+//		node so we can update root as needed and also return the current spot we are on.
+//		This will allow us to remove calling the find function after every insert
 static NODE *insert_letter(NODE *node, char letter) {
 	NODE 	*new;
 	NODE	*cur;

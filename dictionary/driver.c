@@ -1,5 +1,6 @@
 #include "input.h"
 #define TEST_PATH "../tests/"
+
 void drive_time(char *arg) {
 	struct timeval start, end;
 	FILE 	*f_src,
@@ -13,8 +14,9 @@ void drive_time(char *arg) {
 	f_src = fopen(arg, "r");
 	while(fscanf(f_src, "%s %s", in, check) != EOF) {
 		char path_in[128] = TEST_PATH;
-		strcat(path_in, in);
 		char path_check[128] = TEST_PATH;
+
+		strcat(path_in, in);
 		strcat(path_check, check);
 		printf("testing: %s against %s\n", path_check, path_in);
 		
@@ -33,6 +35,10 @@ void drive_time(char *arg) {
 }
 
 int main(int argc, char **argv) {
+	if(argc != 2) {
+		printf("./prog <master list>\n");
+		exit(1);
+	}
 	drive_time(argv[1]);
 	return 1;
 }
