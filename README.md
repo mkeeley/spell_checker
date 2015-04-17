@@ -8,7 +8,7 @@ Todo tree:
       - b --> i --> t* --> i --> n --> g*
       -  \\--> o ---/
       -  here, bit, biting, and bot are words but 'boting' should not be a word
-  - implement faster insert and search (linear search through n linked lists- very slow with lots of words)
+  - reorder tree according to frequency of letters searched letters more popular are shifted to the front
   - give recommendations if word is mispelled (list words that are ~1 letter different than original)
   - write sentence using most frequently used words
   - parallelize
