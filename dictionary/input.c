@@ -18,17 +18,17 @@ void	test_dictionary(FILE *, FILE *);
 
 /* Function:	is_word()
  *
- * Description:	Determine if input string is a word
-		in the dictionary - aka is it spelled
-		correctly?
+ * Description:	Determine if string resides in the
+ *		dictionary - is word spelled correctly?
  */
 
 int is_word(char *word) {
-	char 	*c = word;
-	NODE 	*curr = find_letter(root, *c),
+	char 	*c = &word[1];
+	NODE 	*curr = find_letter(root, *word),
 		*prev = curr;
-		
-	c++;
+
+	if(!curr)
+		return 0;
 	while(*c && (curr = find_letter(curr->leaves, *c))) {
 		prev = curr;
 		c++;
@@ -154,19 +154,23 @@ static void parse(char *text) {
 
 void test_dictionary(FILE *in, FILE *check) {
 	char	buf[64];
+	int	tot = 0;
 
 	while(fscanf(in, "%s", buf) != EOF) {
 		parse(buf);
 		root = build_dict(buf);
-	}
-	
-	buf[0] = '\0';
-	printf("printing dictionary:\n");
-	print_dictionary(root, buf);
+		tot++;
+	}	
 
-	printf("words from check file:\n");
+	printf("%d words inserted\n", tot);
+	memset(buf, 0, sizeof(buf));
+	tot = 0;
+
 	while(fscanf(check, "%s", buf) != EOF) {
-		printf("\t- %s is ", buf);
-		is_word(buf) ? printf("a word\n") : printf("not a word\n");
+		parse(buf);
+		if(!is_word(buf))
+			printf("ERROR: %s not found\n", buf);
+		tot++;
 	}
+	printf("%d words searched\n", tot);
 }

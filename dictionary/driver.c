@@ -13,8 +13,8 @@ void drive_time(char *arg) {
 
 	f_src = fopen(arg, "r");
 	while(fscanf(f_src, "%s %s", in, check) != EOF) {
-		char path_in[128] = TEST_PATH;
-		char path_check[128] = TEST_PATH;
+		char 	path_in[128] = TEST_PATH,
+			path_check[128] = TEST_PATH;
 
 		strcat(path_in, in);
 		strcat(path_check, check);
@@ -22,6 +22,7 @@ void drive_time(char *arg) {
 		
 		f_in = fopen(path_in, "r");
 		f_check = fopen(path_check, "r");
+		printf("FP in: %p, FP out: %p\n", f_in, f_check);
 	
 		gettimeofday(&start, NULL);
 		test_dictionary(f_in, f_check);
