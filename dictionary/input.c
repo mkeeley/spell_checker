@@ -15,7 +15,7 @@ static void print_dictionary(NODE *, char *);
 static void parse(char *);
 int 	is_word(char *);
 void	test_dictionary(FILE *, FILE *);
-void 	hamming(char *, char *, int, int, int, NODE *);
+void 	hamming(char *, char *, int, int, NODE *);
 
 /* Function:	is_word()
  *
@@ -140,7 +140,7 @@ static void parse(char *text) {
 	src = dst = text;
 	while(*src) {
 		*src = tolower(*src);
-		if('a' <= *src && *src <= 'z') 
+		if('a' <= *src && *src <= 'z')
 			*dst++ = *src;
 		src++;
 	}
@@ -156,7 +156,8 @@ static void parse(char *text) {
 void test_dictionary(FILE *in, FILE *check) {
 	char	buf[64],
 		suggestion[64];
-	int	tot = 0;
+	int	tot = 0,
+		errors = 0;
 
 	while(fscanf(in, "%s", buf) != EOF) {
 		parse(buf);
@@ -166,7 +167,7 @@ void test_dictionary(FILE *in, FILE *check) {
 
 	printf("%d words inserted\n", tot);
 	memset(buf, 0, sizeof(buf));
-	memset(suggestion, 0 , sizeof(suggestion));
+	memset(suggestion, 0, sizeof(suggestion));
 	tot = 0;
 
 	// temp, print all words
@@ -177,35 +178,40 @@ void test_dictionary(FILE *in, FILE *check) {
 	while(fscanf(check, "%s", buf) != EOF) {
 		parse(buf);
 		if(!is_word(buf)) {
+			errors++;
 			printf("- %s not found\n", buf);
 			printf("suggestions:\n");
-			hamming(buf, suggestion, 0, 2, strlen(buf), root);
+			hamming(buf, suggestion, 0, strlen(buf), root);
 		}
 		tot++;
 	}
 	printf("%d words searched\n", tot);
+	printf("%d errors found\n", errors);
 }
 
 // hamming distance for mispelled words of similar length (+/- 2)
 
-void hamming(char *wrong, char *new, int curr, int max, int org_len, NODE *node) {
+void hamming(char *wrong, char *new, int curr, int org_len, NODE *node) {
 	int 	len;
 
-	if(node && *wrong) {
-		if(curr > max) 
-			return;
+	if(node && *wrong && curr < HAM_DIST) {
 		len = strlen(new);
 		strcat(new, &node->letter);
-		if(node->end_of_word && strlen(new) + curr > org_len) 
+		if(node->end_of_word && len - 1 == org_len) {
+			char *c = new;
+			while(*c) {
+				printf("letter: %c, %d\n", *c, *c);
+				c++;
+			}
+			printf("new %u\n", len);
+			printf("org %u\n", org_len);
 			printf("\t%s\n", new);
-		if(node->letter != *wrong) {
-			hamming(wrong + 1, new, curr + 1, max, org_len, node->leaves);
 		}
-		else {
-			hamming(wrong + 1, new, curr, max, org_len, node->leaves);
-		}
+		if(node->letter != *wrong) 
+			hamming(wrong + 1, new, curr + 1, org_len, node->leaves);
+		else 
+			hamming(wrong + 1, new, curr, org_len, node->leaves);
 		new[len] = '\0';
-		hamming(wrong, new, curr, max, org_len, node->next);
+		hamming(wrong, new, curr, org_len, node->next);
 	}
 }
-			
