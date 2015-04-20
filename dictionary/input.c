@@ -15,6 +15,7 @@ static void print_dictionary(NODE *, char *);
 static void parse(char *);
 int 	is_word(char *);
 void	test_dictionary(FILE *, FILE *);
+void 	hamming(char *, char *, int, int, int, NODE *);
 
 /* Function:	is_word()
  *
@@ -33,9 +34,9 @@ int is_word(char *word) {
 		prev = curr;
 		c++;
 	}
-	if(prev->end_of_word)
-		return 1;
-	return 0;
+	if(!prev->end_of_word || !curr)
+		return 0;
+	return 1;
 }
 
 /* Function:	print_dictionary()
@@ -47,12 +48,12 @@ static void print_dictionary(NODE *node, char *word) {
 	int	len;
 
 	if(node) {
-		strcat(word, &node->letter);
 		len = strlen(word);
+		strcat(word, &node->letter);
 		if(node->end_of_word)	
 			printf("\t- %s\n", word);
 		print_dictionary(node->leaves, word);
-		word[len - 1] = '\0';
+		word[len] = '\0';
 		print_dictionary(node->next, word);
 	}
 }
@@ -153,7 +154,8 @@ static void parse(char *text) {
  */
 
 void test_dictionary(FILE *in, FILE *check) {
-	char	buf[64];
+	char	buf[64],
+		suggestion[64];
 	int	tot = 0;
 
 	while(fscanf(in, "%s", buf) != EOF) {
@@ -164,13 +166,46 @@ void test_dictionary(FILE *in, FILE *check) {
 
 	printf("%d words inserted\n", tot);
 	memset(buf, 0, sizeof(buf));
+	memset(suggestion, 0 , sizeof(suggestion));
 	tot = 0;
+
+	// temp, print all words
+	//print_dictionary(root, buf);
+	//memset(buf, 0, sizeof(buf));
+	//
 
 	while(fscanf(check, "%s", buf) != EOF) {
 		parse(buf);
-		if(!is_word(buf))
-			printf("ERROR: %s not found\n", buf);
+		if(!is_word(buf)) {
+			printf("- %s not found\n", buf);
+			printf("suggestions:\n");
+			hamming(buf, suggestion, 0, 2, strlen(buf), root);
+		}
 		tot++;
 	}
 	printf("%d words searched\n", tot);
 }
+
+// hamming distance for mispelled words of similar length (+/- 2)
+
+void hamming(char *wrong, char *new, int curr, int max, int org_len, NODE *node) {
+	int 	len;
+
+	if(node && *wrong) {
+		if(curr > max) 
+			return;
+		len = strlen(new);
+		strcat(new, &node->letter);
+		if(node->end_of_word && strlen(new) + curr > org_len) 
+			printf("\t%s\n", new);
+		if(node->letter != *wrong) {
+			hamming(wrong + 1, new, curr + 1, max, org_len, node->leaves);
+		}
+		else {
+			hamming(wrong + 1, new, curr, max, org_len, node->leaves);
+		}
+		new[len] = '\0';
+		hamming(wrong, new, curr, max, org_len, node->next);
+	}
+}
+			
