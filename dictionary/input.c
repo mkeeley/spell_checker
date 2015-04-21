@@ -49,7 +49,7 @@ static void print_dictionary(NODE *node, char *word) {
 
 	if(node) {
 		len = strlen(word);
-		strcat(word, &node->letter);
+		strncat(word, &node->letter, 1);
 		if(node->end_of_word)	
 			printf("\t- %s\n", word);
 		print_dictionary(node->leaves, word);
@@ -173,7 +173,6 @@ void test_dictionary(FILE *in, FILE *check) {
 	// temp, print all words
 	//print_dictionary(root, buf);
 	//memset(buf, 0, sizeof(buf));
-	//
 
 	while(fscanf(check, "%s", buf) != EOF) {
 		parse(buf);
@@ -196,17 +195,11 @@ void hamming(char *wrong, char *new, int curr, int org_len, NODE *node) {
 
 	if(node && *wrong && curr < HAM_DIST) {
 		len = strlen(new);
-		strcat(new, &node->letter);
-		if(node->end_of_word && len - 1 == org_len) {
-			char *c = new;
-			while(*c) {
-				printf("letter: %c, %d\n", *c, *c);
-				c++;
-			}
-			printf("new %u\n", len);
-			printf("org %u\n", org_len);
+		strncat(new, &node->letter, 1);
+		if(!strcmp(new, "john"))
+			printf("found %s\n", new);
+		if(node->end_of_word && len + 1 == org_len) 
 			printf("\t%s\n", new);
-		}
 		if(node->letter != *wrong) 
 			hamming(wrong + 1, new, curr + 1, org_len, node->leaves);
 		else 

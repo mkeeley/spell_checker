@@ -7,7 +7,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-#define HAM_DIST 2
+#define HAM_DIST 1
 
 int is_word(char *);
 void test_dictionary(FILE *, FILE *);
