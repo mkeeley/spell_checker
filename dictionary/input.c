@@ -196,14 +196,16 @@ void hamming(char *wrong, char *new, int curr, int org_len, NODE *node) {
 	if(node && *wrong && curr < HAM_DIST) {
 		len = strlen(new);
 		strncat(new, &node->letter, 1);
-		if(!strcmp(new, "john"))
-			printf("found %s\n", new);
-		if(node->end_of_word && len + 1 == org_len) 
-			printf("\t%s\n", new);
-		if(node->letter != *wrong) 
+		if(node->letter != *wrong) {
+			if(node->end_of_word && len + 1 == org_len && curr + 1 < HAM_DIST) 
+				printf("\t%s\n", new);
 			hamming(wrong + 1, new, curr + 1, org_len, node->leaves);
-		else 
+		}
+		else {
+			if(node->end_of_word && len + 1 == org_len && curr < HAM_DIST) 
+				printf("\t%s\n", new);
 			hamming(wrong + 1, new, curr, org_len, node->leaves);
+		}
 		new[len] = '\0';
 		hamming(wrong, new, curr, org_len, node->next);
 	}
