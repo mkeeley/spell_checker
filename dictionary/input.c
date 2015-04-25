@@ -186,22 +186,19 @@ void test_dictionary(FILE *in, FILE *check) {
 // hamming distance for mispelled words of similar length (+/- 2)
 
 void hamming(char *wrong, char *new, int curr, int org_len, NODE *node) {
-	int 	len;
+	int 	len,
+		len_dif;
 
 	if(node && *wrong && curr < HAM_DIST) {
+		hamming(wrong, new, curr, org_len, node->next);
 		len = strlen(new);
 		strncat(new, &node->letter, 1);
-		if(node->letter != *wrong) {
-			if(node->end_of_word && len + 1 == org_len && curr + 1 < HAM_DIST) 
-				printf("\t%s\n", new);
-			hamming(wrong + 1, new, curr + 1, org_len, node->leaves);
-		}
-		else {
-			if(node->end_of_word && len + 1 == org_len && curr < HAM_DIST) 
-				printf("\t%s\n", new);
-			hamming(wrong + 1, new, curr, org_len, node->leaves);
-		}
+		if(node->letter != *wrong) 
+			curr++;
+		len_dif = abs(org_len - (len + 1));
+		if(node->end_of_word && curr + len_dif < HAM_DIST)
+			printf("\t%s\n", new);
+		hamming(wrong + 1, new, curr, org_len, node->leaves);
 		new[len] = '\0';
-		hamming(wrong, new, curr, org_len, node->next);
 	}
 }
