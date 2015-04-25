@@ -1,4 +1,7 @@
 #include "input.h" 
+#include "builder.h"
+
+#define MULTITHREAD 1
 
 static NODE *root = NULL;
 
@@ -6,8 +9,8 @@ NODE *build_dict(NODE *, char *);
 static NODE *insert_letter(NODE **, char);
 static NODE *find_letter(NODE *, char);
 static void print_dictionary(NODE *, char *);
-static void parse(char *);
 static int is_word(NODE *, char *);
+void 	parse(char *);
 void	test_dictionary(FILE *, FILE *);
 void 	hamming(char *, char *, int, int, NODE *);
 
@@ -127,7 +130,7 @@ static NODE *insert_letter(NODE **node, char letter) {
  * 		all characters that are not a-z.
  */
 
-static void parse(char *text) {
+void parse(char *text) {
 	char	*src,
 		*dst;
 
@@ -154,11 +157,15 @@ void test_dictionary(FILE *in, FILE *check) {
 		errors = 0;
 	NODE 	*node = NULL;
 
+#if !MULTITHREAD
 	while(fscanf(in, "%s", buf) != EOF) {
 		parse(buf);
 		node = build_dict(node, buf);
 		tot++;
 	}	
+#else
+	spawn_threads(in);
+#endif
 
 	printf("%d words inserted\n", tot);
 	memset(buf, 0, sizeof(buf));
@@ -168,7 +175,7 @@ void test_dictionary(FILE *in, FILE *check) {
 	// temp, print all words
 	//print_dictionary(root, buf);
 	//memset(buf, 0, sizeof(buf));
-
+/*
 	while(fscanf(check, "%s", buf) != EOF) {
 		parse(buf);
 		if(!is_word(node, buf)) {
@@ -181,6 +188,7 @@ void test_dictionary(FILE *in, FILE *check) {
 	}
 	printf("%d words searched\n", tot);
 	printf("%d errors found\n", errors);
+*/
 }
 
 // hamming distance for mispelled words of similar length (+/- 2)

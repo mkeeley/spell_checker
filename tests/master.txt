@@ -1,1 +1,1 @@
-in2.txt out1.txt
+dictionary.txt out1.txt

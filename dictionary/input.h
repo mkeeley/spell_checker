@@ -18,5 +18,6 @@ typedef struct node {
 	
 NODE *build_dict(NODE *, char *);
 void test_dictionary(FILE *, FILE *);
+void parse(char *);
 
 #endif /* INPUT_H */
