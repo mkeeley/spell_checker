@@ -9,7 +9,14 @@
 
 #define HAM_DIST 2
 
-int is_word(char *);
+typedef struct node {
+	char 	letter;
+	char	end_of_word;
+	struct node *next;
+	struct node *leaves;
+} NODE;
+	
+NODE *build_dict(NODE *, char *);
 void test_dictionary(FILE *, FILE *);
 
 #endif /* INPUT_H */

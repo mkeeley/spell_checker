@@ -1,19 +1,13 @@
 #include "input.h" 
 
-typedef struct node {
-	char 	letter;
-	char	end_of_word;
-	struct node *next;
-	struct node *leaves;
-} NODE;
-	
 static NODE *root = NULL;
-static NODE *build_dict(char *);
+
+NODE *build_dict(NODE *, char *);
 static NODE *insert_letter(NODE **, char);
 static NODE *find_letter(NODE *, char);
 static void print_dictionary(NODE *, char *);
 static void parse(char *);
-int 	is_word(char *);
+static int is_word(NODE *, char *);
 void	test_dictionary(FILE *, FILE *);
 void 	hamming(char *, char *, int, int, NODE *);
 
@@ -23,9 +17,9 @@ void 	hamming(char *, char *, int, int, NODE *);
  *		dictionary - is word spelled correctly?
  */
 
-int is_word(char *word) {
+int is_word(NODE *node, char *word) {
 	char 	*c = &word[1];
-	NODE 	*curr = find_letter(root, *word),
+	NODE 	*curr = find_letter(node, *word),
 		*prev = curr;
 
 	if(!curr)
@@ -64,7 +58,7 @@ static void print_dictionary(NODE *node, char *word) {
  *		word into the dictionary
  */
 
-static NODE *build_dict(char *word) {
+NODE *build_dict(NODE *root, char *word) {
 	char	*src = &word[1];
 	NODE 	*temp;
 
@@ -158,10 +152,11 @@ void test_dictionary(FILE *in, FILE *check) {
 		suggestion[64];
 	int	tot = 0,
 		errors = 0;
+	NODE 	*node = NULL;
 
 	while(fscanf(in, "%s", buf) != EOF) {
 		parse(buf);
-		root = build_dict(buf);
+		node = build_dict(node, buf);
 		tot++;
 	}	
 
@@ -176,11 +171,11 @@ void test_dictionary(FILE *in, FILE *check) {
 
 	while(fscanf(check, "%s", buf) != EOF) {
 		parse(buf);
-		if(!is_word(buf)) {
+		if(!is_word(node, buf)) {
 			errors++;
 			printf("- %s not found\n", buf);
 			printf("suggestions:\n");
-			hamming(buf, suggestion, 0, strlen(buf), root);
+			hamming(buf, suggestion, 0, strlen(buf), node);
 		}
 		tot++;
 	}
